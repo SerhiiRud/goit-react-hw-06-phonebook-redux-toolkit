@@ -1,4 +1,5 @@
-import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Formik } from 'formik';
 import { object, string } from 'yup';
 import { nanoid } from 'nanoid';
@@ -9,6 +10,8 @@ import {
   ErrorMessage,
   FormButton,
 } from './Phonebook.styled';
+import { addContact } from 'redux/actions';
+import { getContacts } from 'redux/selectors';
 
 const userSchema = object().shape({
   name: string()
@@ -31,14 +34,31 @@ const userSchema = object().shape({
     .required('This field is required!'),
 });
 
-export const ContactForm = ({ onAddContact }) => {
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+
+  const addContactHandler = (values, actions) => {
+    if (
+      contacts.find(
+        contact =>
+          contact.name.toLocaleLowerCase() ===
+          values.name.toLocaleLowerCase().trim()
+      )
+    ) {
+      return alert(`${values.name} is already in contacts`);
+    }
+    dispatch(addContact({ ...values, id: nanoid() }));
+
+    actions.resetForm();
+  };
+
   return (
     <>
       <Formik
         initialValues={{ name: '', number: '' }}
         onSubmit={(values, actions) => {
-          onAddContact({ ...values, id: nanoid() });
-          actions.resetForm();
+          addContactHandler(values, actions);
         }}
         validationSchema={userSchema}
       >
@@ -56,8 +76,4 @@ export const ContactForm = ({ onAddContact }) => {
       </Formik>
     </>
   );
-};
-
-ContactForm.propTypes = {
-  onAddContact: PropTypes.func.isRequired,
 };

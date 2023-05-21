@@ -1,8 +1,17 @@
-import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
 import { Formik } from 'formik';
 import { Field, FormField } from './Filter.styled';
+import { setFilter } from 'redux/actions';
 
-export const Filter = ({ onSearch }) => {
+export const Filter = () => {
+  const dispatch = useDispatch();
+
+  const onSearch = event => {
+    event.preventDefault();
+    const form = event.target;
+    dispatch(setFilter(form.value));
+  };
+
   return (
     <Formik>
       <>
@@ -11,8 +20,4 @@ export const Filter = ({ onSearch }) => {
       </>
     </Formik>
   );
-};
-
-Filter.propTypes = {
-  onSearch: PropTypes.func.isRequired,
 };
